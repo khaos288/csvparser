@@ -3,6 +3,7 @@ const fs = require('fs')
 const fuzz = require('fuzzball')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
+// Setting up csv writer instance
 const csvWriter = createCsvWriter({
   path: 'outputFile.csv',
   header: [
@@ -12,6 +13,7 @@ const csvWriter = createCsvWriter({
   ]
 });
 
+// Set up variables
 const results = [];
 const twoFourData = [];
 const rivalsData = [];
@@ -22,11 +24,11 @@ var counter = 0;
 const options = {
     // any function that takes two values and returns a score, default: ratio
     scorer: fuzz.partial_ratio, 
-    // max number of top results to return, default: no limit / 0.
+    // max number of top results to return, default: no limit / 0
     limit: 1, 
     // lowest score to return, default: 0
     cutoff: 70, 
-    // results won't be sorted if true, default: false. If true limit will be ignored.
+    // results won't be sorted if true, default: false. If true limit will be ignored
     unsorted: false 
 };
 
@@ -38,10 +40,11 @@ fs.createReadStream('data.csv')
     // Remove first line of headers
     results.shift()
     
-    // Push Rivals data to an array for use in choices below
+    // Push Rivals data to array sfor use in choices below
     results.forEach(element => twoFourData.push(element['247']))
     results.forEach(element => rivalsData.push(element['Rivals']))
 
+    // Adjust the number to the number of rivals data that is actually useful (index count starts at 0, so subtract one from real number)
     var filtered = rivalsData.slice(0, 3454)
 
     // Start For loop to go through each element
@@ -57,18 +60,23 @@ fs.createReadStream('data.csv')
                 certainty: arr[0][1]
             })
         }
+
+        // Built a counter so I can tell if this is working or not
         counter += 1;
         console.log(counter)
     })
 
+    // Sort by certainty factor
     output.sort(compare_items)
     
+    // Write to output file
     csvWriter
     .writeRecords(output)
     .then(()=> console.log('The CSV file was written successfully'));
 
   });
 
+  // Function that sorts based on certainty
   function compare_items(a,b){
       if (a.certainty < b.certainty) {
           return 1
